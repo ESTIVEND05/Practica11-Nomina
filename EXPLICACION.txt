@@ -1,0 +1,109 @@
+PRACTICA 11 - NOMINA MENSUAL EN JAVA
+Programacion II - Segundo semestre 2026
+
+Como ejecutarlo (desde la carpeta Practica11_Nomina):
+  javac -encoding UTF-8 -d bin src/modelo/*.java src/aplicacion/Main.java
+  java -cp bin aplicacion.Main
+
+------------------------------------------------------------
+EXPLICACION DE LOS CONCEPTOS
+------------------------------------------------------------
+
+1. Proyecto, package e import
+   - Las clases de empleados estan en el paquete "modelo" (package modelo;).
+   - Main esta en el paquete "aplicacion" (package aplicacion;).
+   - En Main uso import para ArrayList, Scanner y las clases del paquete modelo.
+
+2. Clase, objeto, instancia e instanciacion
+   - Cada clase esta en su propio archivo .java (Empleado, EmpleadoFijo,
+     EmpleadoPorHora y Main).
+   - En capturarEmpleadoFijo() hago "new EmpleadoFijo(...)" y en
+     capturarEmpleadoPorHora() hago "new EmpleadoPorHora(...)". Cada vez que
+     se ingresa un empleado se crea una instancia nueva (instanciacion) y se
+     agrega al ArrayList.
+
+3. Constructores, parametros, argumentos y this
+   - Constructor de EmpleadoFijo:
+       public EmpleadoFijo(String dpi, String nombre, double sueldoMensual, double bonificacion)
+     Lo que esta dentro del parentesis en la DECLARACION son los PARAMETROS.
+   - En Main se llama asi:
+       new EmpleadoFijo(dpi, nombre, sueldo, bono);
+     Esos valores que se mandan (lo que escribio el usuario) son los ARGUMENTOS.
+   - Uso this para diferenciar atributo y parametro: this.sueldoMensual = sueldoMensual;
+   - Los constructores no llevan tipo de retorno.
+
+4. Encapsulamiento y modificadores de acceso
+   - Todos los atributos son private: dpi, nombre, sueldoMensual, bonificacion,
+     pagoPorHora, horasTrabajadas, y en Main: meses, empleados, teclado, numeroMes.
+   - Para leerlos uso getters (getDpi(), getNombre(), etc.). No puse setters
+     porque no se modifican los datos despues de crearlos.
+
+5. Clase y metodo abstracto
+   - Empleado es "abstract" y tiene "public abstract double calcularPago();"
+   - No se puede hacer new Empleado(...), solo se crean fijos o por hora.
+
+6. Herencia y sobrescritura
+   - EmpleadoFijo extends Empleado y EmpleadoPorHora extends Empleado.
+   - Las dos llaman a super(dpi, nombre) para que el padre guarde el DPI y nombre.
+   - Las dos usan @Override en calcularPago() y obtenerTipo().
+       Fijo:     sueldoMensual + bonificacion
+       Por hora: pagoPorHora * horasTrabajadas
+
+7. Polimorfismo
+   - Los dos tipos se guardan en el mismo ArrayList<Empleado> empleados.
+   - En imprimirNomina() y calcularTotal() recorro la lista con
+       for (Empleado e : empleados)
+     y llamo e.calcularPago(). Java ejecuta el calculo de la clase real del
+     objeto, por eso no uso if, switch ni instanceof para saber la formula.
+
+8. Arreglo simple String[] meses
+   - Esta declarado en Main: private static String[] meses = {"Enero", ..., "Diciembre"};
+   - El usuario ingresa numeroMes (1 a 12) y se valida con leerEntero(..., 1, 12)
+     ANTES de usarlo en el arreglo.
+   - Cada vez que muestro el mes uso meses[numeroMes - 1] (se resta 1 porque
+     los indices empiezan en 0). Ej: 3 -> meses[2] -> "Marzo".
+
+9. ArrayList: add(), size() y recorrido
+   - add(): en ingresoNomina() -> empleados.add(nuevo);
+   - size(): para "Trabajadores actuales = " y "Total de trabajadores: ".
+   - Recorrido: for (Empleado e : empleados) en imprimirNomina() y calcularTotal().
+
+10. Metodos, ambito y alcance
+   - main solo pide el mes y muestra el menu; lo demas lo hacen otros metodos:
+     ingresoNomina(), capturarEmpleadoFijo(), imprimirNomina(), leerDpi(), etc.
+   - Metodo con parametros: leerEntero(String mensaje, int min, int max).
+   - Metodo que devuelve resultado: calcularTotal() devuelve un double.
+   - Ejemplos de ambito:
+       * Atributo: "nombre" en Empleado. Se puede usar en toda la clase Empleado;
+         desde afuera solo con getNombre() porque es private.
+       * Parametro: "mensaje" en leerNumero(String mensaje). Solo existe dentro
+         de ese metodo.
+       * Variable local: "total" en calcularTotal(). Solo existe dentro de ese
+         metodo, desde que se declara hasta que termina el metodo.
+
+11. Validaciones
+   - Mes y opciones de menu: leerEntero() solo acepta numeros dentro del rango.
+   - DPI: String con exactamente 13 digitos (dpi.matches("\\d{13}")).
+   - Nombre: no puede quedar vacio ni solo con espacios (trim + isEmpty).
+   - Sueldo, bonificacion, pago por hora y horas: leerNumero() no acepta texto,
+     negativos, NaN ni infinito.
+   - Si algo esta mal se muestra el error y se vuelve a pedir ese dato.
+   - El empleado se agrega a la lista hasta que todos sus datos son validos.
+
+------------------------------------------------------------
+PRUEBA DEL CASO DE LA SECCION 11
+------------------------------------------------------------
+Mes: 3 -> se muestra "NÓMINA DEL MES: MARZO" (meses[2])
+Ana Lopez, fijo, DPI 1234567890101, sueldo 4000, bonificacion 300 -> Q 4300.00
+Luis Perez, por hora, DPI 9876543210101, 25 por hora, 120 horas  -> Q 3000.00
+
+Reporte:
+DPI            Nombre              Tipo          Pago (Q)
+1234567890101  Ana López           Fijo           4300.00
+9876543210101  Luis Pérez          Por hora       3000.00
+Total de trabajadores: 2
+Total de nómina: Q 7300.00
+
+Tambien probe: mes 1 = Enero, mes 12 = Diciembre, mes 0 / 13 / "abc" no se
+aceptan; reporte sin empleados (0 y Q 0.00); DPI con 12 digitos, nombre vacio,
+texto en el sueldo y valores negativos se vuelven a pedir.
